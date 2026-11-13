@@ -1,0 +1,464 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <div slot="start" class="brand-header">
+      <img src="assets/bgd-logo.svg" alt="Logo BGD Cash" class="brand-logo" />
+      <div>
+        <ion-title class="brand-title">BGD Cash</ion-title>
+        <span class="brand-subtitle">Home &amp; Dashboards</span>
+      </div>
+    </div>
+    <ion-buttons slot="end">
+      <ion-button
+        (click)="finance.toggleTheme()"
+        fill="clear"
+        [color]="finance.profile().darkMode ? 'warning' : 'medium'"
+        aria-label="Alternar Tema Claro / Escuro"
+        title="Alternar Tema Claro / Escuro"
+      >
+        <ion-icon slot="icon-only" [name]="finance.profile().darkMode ? 'sunny-outline' : 'moon-outline'"></ion-icon>
+      </ion-button>
+      <ion-button routerLink="/bancos" fill="solid" color="primary" shape="round" size="small">
+        <ion-icon slot="start" name="link-outline"></ion-icon>
+        {{ finance.connectedBanks().length }} Bancos
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="bgd-container ion-padding">
+    <!-- Hero Card com Saudação, Saldo e Conexão Bancária -->
+    <div class="hero-banner">
+      <ion-grid class="ion-no-padding">
+        <ion-row class="ion-align-items-center">
+          <ion-col size="12" sizeMd="7">
+            <div class="hero-greeting">
+              <span class="greeting-pill">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                Open Finance Ativo
+              </span>
+              <h1>Olá, {{ finance.profile().name }}!</h1>
+              <p>Acompanhe seus gastos do banco, gráficos e maiores despesas do mês.</p>
+            </div>
+            <div class="hero-balance-box">
+              <span class="balance-label">Saldo Disponível no Mês</span>
+              <h2 class="balance-value">
+                {{ finance.currentBalance() | currency:'BRL':'symbol':'1.2-2' }}
+              </h2>
+            </div>
+          </ion-col>
+
+          <ion-col size="12" sizeMd="5">
+            <div class="hero-kpis">
+              <div class="kpi-mini income">
+                <div class="kpi-icon">
+                  <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                </div>
+                <div>
+                  <span>Receitas (Últimas)</span>
+                  <strong>{{ finance.totalIncome() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                </div>
+              </div>
+
+              <div class="kpi-mini expense">
+                <div class="kpi-icon">
+                  <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                </div>
+                <div>
+                  <span>Despesas (Últimas)</span>
+                  <strong>{{ finance.totalExpense() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                </div>
+              </div>
+
+              <div class="kpi-mini upcoming" (click)="homeTxView.set('upcoming')">
+                <div class="kpi-icon">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                </div>
+                <div>
+                  <span>Gastos Seguintes (Previstos)</span>
+                  <strong>{{ finance.upcomingExpenseTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+                </div>
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      @if (finance.pendingReviewCount() > 0) {
+        <div class="review-banner" routerLink="/tabs/tab2">
+          <div class="review-banner-left">
+            <ion-icon name="sparkles-outline"></ion-icon>
+            <span>
+              Você tem <strong>{{ finance.pendingReviewCount() }} transações do banco</strong> (ex: iFood, Uber) aguardando decisão de categoria!
+            </span>
+          </div>
+          <ion-button fill="clear" size="small" color="light">
+            Classificar agora
+            <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+          </ion-button>
+        </div>
+      }
+    </div>
+
+    <!-- Linha de Gráficos: Pizza (Categorias) + Linha (Evolução Mensal) -->
+    <ion-grid class="ion-no-padding">
+      <ion-row>
+        <!-- Gráfico 1: Pizza / Rosca por Categoria -->
+        <ion-col size="12" sizeLg="6" class="grid-col-pad">
+          <div class="bgd-card chart-card">
+            <div class="card-header-row">
+              <div>
+                <h3>Gráfico de Pizza • Gastos por Categoria</h3>
+                <p>Distribuição percentual das despesas realizadas</p>
+              </div>
+              <ion-chip color="primary" outline="true" class="hide-xs">
+                <ion-icon name="pie-chart-outline"></ion-icon>
+                <ion-label>Categorias</ion-label>
+              </ion-chip>
+            </div>
+
+            <div class="pie-chart-wrapper">
+              <div class="pie-svg-box">
+                <svg viewBox="0 0 180 180" class="donut-svg">
+                  <circle
+                    cx="90"
+                    cy="90"
+                    r="68"
+                    fill="transparent"
+                    stroke="var(--bgd-border)"
+                    stroke-width="24"
+                  ></circle>
+                  @for (slice of pieSlices(); track slice.categoryName) {
+                    <circle
+                      cx="90"
+                      cy="90"
+                      r="68"
+                      fill="transparent"
+                      [attr.stroke]="slice.color"
+                      stroke-width="24"
+                      [attr.stroke-dasharray]="slice.dashArray"
+                      [attr.stroke-dashoffset]="slice.dashOffset"
+                      transform="rotate(-90 90 90)"
+                    ></circle>
+                  }
+                </svg>
+                <div class="donut-center">
+                  <span>Total Gasto</span>
+                  <strong>{{ finance.totalExpense() | currency:'BRL':'symbol':'1.0-0' }}</strong>
+                </div>
+              </div>
+
+              <div class="pie-legend">
+                @for (slice of pieSlices(); track slice.categoryName) {
+                  <div class="legend-item">
+                    <span class="legend-dot" [style.background]="slice.color"></span>
+                    <span class="legend-name">{{ slice.categoryName }}</span>
+                    <strong class="legend-pct">{{ slice.percentage }}%</strong>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </ion-col>
+
+        <!-- Gráfico 2: Linha (Receitas vs Despesas) -->
+        <ion-col size="12" sizeLg="6" class="grid-col-pad">
+          <div class="bgd-card chart-card">
+            <div class="card-header-row">
+              <div>
+                <h3>Gráfico de Linha • Evolução Mensal</h3>
+                <p>Comparativo entre Receitas e Despesas (6 meses)</p>
+              </div>
+              <div class="line-legend-inline">
+                <span class="dot-inc">● Receitas</span>
+                <span class="dot-exp">● Despesas</span>
+              </div>
+            </div>
+
+            <div class="line-chart-wrapper">
+              <svg viewBox="0 0 360 175" class="line-svg">
+                <defs>
+                  <linearGradient id="incAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.28" />
+                    <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
+                  </linearGradient>
+                  <linearGradient id="expAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.22" />
+                    <stop offset="100%" stop-color="#ef4444" stop-opacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                <line x1="24" y1="30" x2="336" y2="30" stroke="var(--bgd-border)" stroke-dasharray="4 4" />
+                <line x1="24" y1="85" x2="336" y2="85" stroke="var(--bgd-border)" stroke-dasharray="4 4" />
+                <line x1="24" y1="138" x2="336" y2="138" stroke="var(--bgd-border)" />
+
+                <polygon [attr.points]="lineChartGeometry().incomeArea" fill="url(#incAreaGrad)" />
+                <polygon [attr.points]="lineChartGeometry().expenseArea" fill="url(#expAreaGrad)" />
+
+                <polyline
+                  fill="none"
+                  stroke="#10b981"
+                  stroke-width="3.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  [attr.points]="lineChartGeometry().incomePolyline"
+                />
+                <polyline
+                  fill="none"
+                  stroke="#ef4444"
+                  stroke-width="3.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  [attr.points]="lineChartGeometry().expensePolyline"
+                />
+
+                @for (pt of lineChartGeometry().incomeCoords; track pt.month) {
+                  <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4.5" fill="#10b981" stroke="#fff" stroke-width="1.5" />
+                  <text [attr.x]="pt.x" y="162" text-anchor="middle" class="axis-label">
+                    {{ pt.month }}
+                  </text>
+                }
+                @for (pt of lineChartGeometry().expenseCoords; track pt.month) {
+                  <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4.5" fill="#ef4444" stroke="#fff" stroke-width="1.5" />
+                }
+              </svg>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+
+      <!-- Linha Inferior: Tabela Responsiva Onde Mais Gastei + Transações (Últimas e Seguintes) -->
+      <ion-row>
+        <!-- Tabela Responsiva: Onde Mais Gastei -->
+        <ion-col size="12" sizeLg="6" class="grid-col-pad">
+          <div class="bgd-card table-card">
+            <div class="card-header-row">
+              <div>
+                <h3>Tabela • Onde Mais Gastei</h3>
+                <p>Ranking de categorias com maior volume de gastos</p>
+              </div>
+              <ion-badge color="danger">{{ finance.expensesByCategory().length }} categorias</ion-badge>
+            </div>
+
+            <div class="responsive-spending-table">
+              @for (row of finance.expensesByCategory(); track row.category.id; let idx = $index) {
+                <div class="spending-row-card">
+                  <div class="spending-row-top">
+                    <div class="spending-cat-left">
+                      <span class="rank-pill">{{ idx + 1 }}º</span>
+                      <div
+                        class="bgd-category-badge"
+                        [style.background]="row.category.color + '1f'"
+                        [style.color]="row.category.color"
+                      >
+                        <ion-icon [name]="row.category.icon"></ion-icon>
+                      </div>
+                      <div class="spending-cat-text">
+                        <strong>{{ row.category.name }}</strong>
+                        <span class="tx-count-sub">
+                          {{ row.count }} {{ row.count === 1 ? 'lançamento' : 'lançamentos' }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="spending-cat-right">
+                      <strong class="spending-total">
+                        {{ row.total | currency:'BRL':'symbol':'1.2-2' }}
+                      </strong>
+                      <span class="spending-pct" [style.color]="row.category.color">
+                        {{ row.percentage }}% do total
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="spending-progress-wrap">
+                    <ion-progress-bar
+                      [value]="row.percentage / 100"
+                      [style.--progress-background]="row.category.color"
+                    ></ion-progress-bar>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </ion-col>
+
+        <!-- Card de Transações na Home com Alternância entre ÚLTIMAS e SEGUINTES -->
+        <ion-col size="12" sizeLg="6" class="grid-col-pad">
+          <div class="bgd-card recent-card">
+            <div class="card-header-row">
+              <div>
+                <h3>Transações do Banco &amp; Conta</h3>
+                <p>Alterne entre as últimas realizadas e as seguintes (futuras)</p>
+              </div>
+              <ion-button
+                fill="clear"
+                size="small"
+                routerLink="/tabs/tab2"
+                [queryParams]="{ view: homeTxView() }"
+              >
+                Ver todas
+                <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+              </ion-button>
+            </div>
+
+            <!-- Seletor direto na Home para ver Últimas vs Seguintes -->
+            <ion-segment
+              [value]="homeTxView()"
+              (ionChange)="onHomeViewChange($event.detail.value)"
+              mode="ios"
+              class="home-tx-segment"
+            >
+              <ion-segment-button value="past">
+                <ion-label>Últimas ({{ finance.pastTransactions().length }})</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="upcoming">
+                <ion-label>Seguintes ({{ finance.upcomingTransactions().length }})</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+
+            <div class="recent-list">
+              @for (tx of displayedHomeTransactions(); track tx.id) {
+                @let cat = finance.getCategoryById(tx.categoryId);
+                @let bank = finance.getBankById(tx.bankId);
+                <div class="recent-item">
+                  <div class="recent-item-top">
+                    <div
+                      class="bgd-category-badge"
+                      [style.background]="cat.color + '1f'"
+                      [style.color]="cat.color"
+                    >
+                      <ion-icon [name]="cat.icon"></ion-icon>
+                    </div>
+
+                    <div class="recent-info">
+                      <div class="recent-title-line">
+                        <strong>{{ tx.title }}</strong>
+                        <button
+                          type="button"
+                          class="home-delete-top-btn"
+                          (click)="openDeleteModal(tx)"
+                          title="Excluir transação"
+                        >
+                          <ion-icon name="trash-outline"></ion-icon>
+                        </button>
+                      </div>
+                      <div class="recent-meta-row">
+                        <div class="recent-meta">
+                          <span>{{ tx.date | date:'dd/MM' }}</span>
+                          @if (tx.timing === 'upcoming') {
+                            <ion-badge color="tertiary" class="mini-badge">Seguinte</ion-badge>
+                          }
+                          @if (tx.needsReview) {
+                            <ion-badge color="warning" class="mini-badge">Sugestão</ion-badge>
+                          }
+                          @if (bank) {
+                            <span
+                              class="bgd-bank-pill"
+                              [style.background]="bank.color + '22'"
+                              [style.color]="bank.color"
+                            >
+                              {{ bank.name }}
+                            </span>
+                          }
+                        </div>
+
+                        <div
+                          class="recent-amount"
+                          [class.bgd-amount-income]="tx.type === 'income'"
+                          [class.bgd-amount-expense]="tx.type === 'expense'"
+                        >
+                          {{ tx.type === 'income' ? '+' : '-' }}
+                          {{ tx.amount | currency:'BRL':'symbol':'1.2-2' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Seletor limpo sem texto na Home -->
+                  <div class="recent-item-bottom">
+                    <div class="home-select-pill">
+                      <ion-icon name="pricetag-outline" [style.color]="cat.color"></ion-icon>
+                      <ion-select
+                        aria-label="Classificar categoria"
+                        interface="popover"
+                        [value]="tx.categoryId"
+                        (ionChange)="onQuickClassify(tx.id, $event.detail.value)"
+                        class="mini-cat-select"
+                      >
+                        @for (c of finance.categories(); track c.id) {
+                          <ion-select-option [value]="c.id">{{ c.name }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Modal de Confirmação ao Excluir Transação na Home -->
+  <ion-modal
+    [isOpen]="!!pendingDeleteTx()"
+    (didDismiss)="closeDeleteModal()"
+    class="delete-confirm-modal"
+  >
+    <ng-template>
+      <div class="modal-confirm-box">
+        <div class="modal-danger-icon">
+          <ion-icon name="trash-outline"></ion-icon>
+        </div>
+        <h3>Excluir Transação?</h3>
+        <p>Tem certeza que deseja excluir este lançamento? Esta ação não poderá ser desfeita.</p>
+
+        @if (pendingDeleteTx(); as txToDel) {
+          <div class="modal-tx-preview">
+            <strong>{{ txToDel.title }}</strong>
+            <span
+              [class.bgd-amount-income]="txToDel.type === 'income'"
+              [class.bgd-amount-expense]="txToDel.type === 'expense'"
+            >
+              {{ txToDel.type === 'income' ? '+' : '-' }}
+              {{ txToDel.amount | currency:'BRL':'symbol':'1.2-2' }}
+            </span>
+          </div>
+        }
+
+        <div class="modal-confirm-actions">
+          <ion-button
+            expand="block"
+            fill="outline"
+            color="medium"
+            shape="round"
+            (click)="closeDeleteModal()"
+          >
+            Cancelar
+          </ion-button>
+          <ion-button
+            expand="block"
+            fill="solid"
+            color="danger"
+            shape="round"
+            (click)="confirmDeleteTransaction()"
+          >
+            <ion-icon slot="start" name="trash-outline"></ion-icon>
+            Sim, Excluir
+          </ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMsg()"
+    [color]="toastColor()"
+    [duration]="2200"
+    position="top"
+    (didDismiss)="toastOpen.set(false)"
+  ></ion-toast>
+</ion-content>

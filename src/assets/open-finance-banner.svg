@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" fill="none">
+  <defs>
+    <linearGradient id="bannerBg" x1="0" y1="0" x2="360" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="60%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="120" rx="20" fill="url(#bannerBg)"/>
+  <circle cx="65" cy="60" r="32" fill="#820ad1" stroke="#ffffff" stroke-width="3"/>
+  <text x="65" y="66" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="18">NU</text>
+  <circle cx="295" cy="60" r="32" fill="#10b981" stroke="#ffffff" stroke-width="3"/>
+  <text x="295" y="66" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="16">BGD</text>
+  <path d="M108 52H252" stroke="#34d399" stroke-width="3" stroke-dasharray="6 6"/>
+  <path d="M108 68H252" stroke="#a7f3d0" stroke-width="3" stroke-dasharray="6 6"/>
+  <circle cx="180" cy="60" r="22" fill="#ffffff"/>
+  <path d="M172 60L178 66L190 54" stroke="#059669" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

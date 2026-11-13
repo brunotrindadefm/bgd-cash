@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <title>BGD Cash • Gestão Financeira &amp; Open Finance</title>
+
+  <base href="/" />
+
+  <meta name="description" content="BGD Cash • Gestão financeira pessoal inteligente, classificação automática de despesas e conexão bancária Open Finance." />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+
+  <!-- PWA Theme Color -->
+  <meta name="theme-color" content="#059669" />
+
+  <!-- PWA Manifest (Conforme roteiro) -->
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- Favicons e Ícones -->
+  <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+
+  <!-- Meta Tags para iOS PWA Tela Cheia -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BGD Cash" />
+
+  <!-- Splash Screen iOS (Apple Touch Startup Image) -->
+  <link rel="apple-touch-startup-image" href="assets/icons/icon-512x512.png" />
+
+  <style>
+    /* Splash Screen Nativa de Carregamento Instantâneo */
+    #app-splash-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      background: linear-gradient(145deg, #064e3b 0%, #0b1120 70%, #022c22 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease-out, visibility 0.4s;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #ffffff;
+      user-select: none;
+    }
+
+    #app-splash-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .splash-logo-box {
+      width: 108px;
+      height: 108px;
+      border-radius: 28px;
+      background: #059669;
+      box-shadow: 0 12px 36px rgba(5, 150, 105, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: splash-pulse 1.8s infinite ease-in-out;
+    }
+
+    .splash-logo-box img {
+      width: 72px;
+      height: 72px;
+    }
+
+    .splash-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-top: 20px;
+      margin-bottom: 4px;
+      color: #ffffff;
+    }
+
+    .splash-subtitle {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #34d399;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .splash-loader-bar {
+      width: 130px;
+      height: 4px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .splash-loader-inner {
+      width: 45%;
+      height: 100%;
+      background: #10b981;
+      border-radius: 99px;
+      animation: splash-bar 1.2s infinite ease-in-out;
+    }
+
+    @keyframes splash-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes splash-bar {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(300%); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Tela Splash Própria e Exclusiva -->
+  <div id="app-splash-screen">
+    <div class="splash-logo-box">
+      <img src="assets/icons/icon-192x192.png" alt="BGD Cash Logo" />
+    </div>
+    <div class="splash-title">BGD Cash</div>
+    <div class="splash-subtitle">Gestão &amp; Open Finance</div>
+    <div class="splash-loader-bar">
+      <div class="splash-loader-inner"></div>
+    </div>
+  </div>
+
+  <app-root></app-root>
+  <noscript>Por favor, habilite o JavaScript para usar o aplicativo BGD Cash.</noscript>
+
+  <script>
+    // Remove suavemente a splash screen assim que a aplicação Angular renderizar
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var splash = document.getElementById('app-splash-screen');
+        if (splash) {
+          splash.classList.add('fade-out');
+          setTimeout(function() { splash.remove(); }, 450);
+        }
+      }, 500);
+    });
+  </script>
+</body>
+
+</html>

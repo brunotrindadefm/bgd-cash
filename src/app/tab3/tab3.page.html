@@ -1,0 +1,319 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Meu Perfil &amp; Categorias</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="danger" fill="outline" shape="round" size="small" (click)="onLogout()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Sair
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar class="segment-toolbar">
+    <ion-segment
+      [value]="profileTab()"
+      (ionChange)="onSubTabChange($event.detail.value)"
+      mode="ios"
+    >
+      <ion-segment-button value="categories">
+        <ion-label>Categorias ({{ finance.categories().length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="settings">
+        <ion-label>Perfil &amp; Configurações</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="bgd-container ion-padding">
+    <!-- Cabeçalho do Perfil -->
+    <div class="profile-hero-card">
+      <div class="profile-main">
+        <div class="avatar-circle">
+          {{ finance.profile().avatarInitials }}
+        </div>
+        <div class="profile-info">
+          <h2>{{ finance.profile().name }}</h2>
+          <p>{{ finance.profile().email }}</p>
+          <div class="profile-badges">
+            <ion-badge color="success">Conta Verificada</ion-badge>
+            <ion-badge color="tertiary">{{ finance.connectedBanks().length }} Bancos Conectados</ion-badge>
+            <ion-badge color="primary">{{ finance.categories().length }} Categorias Ativas</ion-badge>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-quick-actions">
+        <ion-button routerLink="/bancos" fill="solid" color="secondary" size="small" shape="round">
+          <ion-icon slot="start" name="link-outline"></ion-icon>
+          Conexões Bancárias
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- SUB-ABA 1: GERENCIAR CATEGORIAS (PADRÃO + ADICIONAR / REMOVER) -->
+    @if (profileTab() === 'categories') {
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <!-- Coluna Esquerda: Criar Nova Categoria -->
+          <ion-col size="12" sizeLg="5" class="col-pad">
+            <div class="bgd-card cat-form-card">
+              <h3>Adicionar Nova Categoria</h3>
+              <p>
+                As categorias criadas aqui aparecem automaticamente no <strong>Select</strong> ao cadastrar receitas/despesas e ao classificar transações do banco.
+              </p>
+
+              <ion-item lines="none" class="bgd-input-item">
+                <ion-input
+                  label="Nome da Categoria"
+                  labelPlacement="stacked"
+                  placeholder="Ex: Pet Shop, Educação, Academia..."
+                  [ngModel]="newCatName()"
+                  (ngModelChange)="newCatName.set($event)"
+                ></ion-input>
+              </ion-item>
+
+              <ion-item lines="none" class="bgd-input-item">
+                <ion-select
+                  label="Tipo de Lançamento"
+                  labelPlacement="stacked"
+                  interface="popover"
+                  [value]="newCatType()"
+                  (ionChange)="newCatType.set($event.detail.value)"
+                >
+                  <ion-select-option value="expense">Despesa / Gasto</ion-select-option>
+                  <ion-select-option value="income">Receita / Ganho</ion-select-option>
+                  <ion-select-option value="both">Ambos (Receita e Despesa)</ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <div class="picker-section">
+                <span class="picker-label">Cor da Categoria</span>
+                <div class="color-swatches">
+                  @for (color of availableColors; track color) {
+                    <button
+                      type="button"
+                      class="color-dot"
+                      [style.background]="color"
+                      [class.selected]="newCatColor() === color"
+                      (click)="newCatColor.set(color)"
+                    ></button>
+                  }
+                </div>
+              </div>
+
+              <div class="picker-section">
+                <span class="picker-label">Ícone</span>
+                <div class="icon-grid">
+                  @for (ic of availableIcons; track ic.name) {
+                    <button
+                      type="button"
+                      class="icon-choice"
+                      [class.selected]="newCatIcon() === ic.name"
+                      (click)="newCatIcon.set(ic.name)"
+                      [title]="ic.label"
+                    >
+                      <ion-icon [name]="ic.name"></ion-icon>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <ion-button expand="block" shape="round" color="primary" (click)="onAddCategory()">
+                <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+                Criar Categoria
+              </ion-button>
+            </div>
+          </ion-col>
+
+          <!-- Coluna Direita: Lista de Categorias Padrão e Personalizadas -->
+          <ion-col size="12" sizeLg="7" class="col-pad">
+            <div class="bgd-card cat-list-card">
+              <div class="list-header">
+                <div>
+                  <h3>Categorias Disponíveis</h3>
+                  <p>Categorias padrão pré-configuradas e suas categorias criadas</p>
+                </div>
+              </div>
+
+              <div class="categories-grid">
+                @for (cat of finance.categories(); track cat.id) {
+                  <div class="cat-item">
+                    <div
+                      class="bgd-category-badge"
+                      [style.background]="cat.color + '20'"
+                      [style.color]="cat.color"
+                    >
+                      <ion-icon [name]="cat.icon"></ion-icon>
+                    </div>
+
+                    <div class="cat-item-info">
+                      <div class="cat-name-row">
+                        <strong>{{ cat.name }}</strong>
+                        @if (cat.isDefault) {
+                          <ion-badge color="light">Padrão</ion-badge>
+                        } @else {
+                          <ion-badge color="primary">Personalizada</ion-badge>
+                        }
+                      </div>
+                      <span class="cat-type-sub">
+                        {{ cat.type === 'income' ? 'Receita' : cat.type === 'expense' ? 'Despesa' : 'Receita & Despesa' }}
+                      </span>
+                    </div>
+
+                    <ion-button
+                      fill="clear"
+                      color="danger"
+                      size="small"
+                      (click)="onRemoveCategory(cat.id, cat.name)"
+                      title="Remover categoria"
+                    >
+                      <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                    </ion-button>
+                  </div>
+                }
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    }
+
+    <!-- SUB-ABA 2: DADOS DO PERFIL, CONFIGURAÇÕES E SAIR -->
+    @if (profileTab() === 'settings') {
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col size="12" sizeLg="6" class="col-pad">
+            <div class="bgd-card settings-card">
+              <h3>Dados Pessoais</h3>
+              <p>Atualize seu nome de exibição e e-mail de acesso</p>
+
+              <ion-item lines="none" class="bgd-input-item">
+                <ion-input
+                  label="Seu Nome Completo"
+                  labelPlacement="stacked"
+                  [ngModel]="editName()"
+                  (ngModelChange)="editName.set($event)"
+                ></ion-input>
+              </ion-item>
+
+              <ion-item lines="none" class="bgd-input-item">
+                <ion-input
+                  label="E-mail"
+                  labelPlacement="stacked"
+                  type="email"
+                  [ngModel]="editEmail()"
+                  (ngModelChange)="editEmail.set($event)"
+                ></ion-input>
+              </ion-item>
+
+              <ion-button expand="block" shape="round" color="primary" (click)="onSaveProfile()">
+                <ion-icon slot="start" name="save-outline"></ion-icon>
+                Salvar Alterações
+              </ion-button>
+            </div>
+          </ion-col>
+
+          <ion-col size="12" sizeLg="6" class="col-pad">
+            <div class="bgd-card settings-card">
+              <h3>Preferências &amp; Segurança</h3>
+              <p>Personalize o comportamento do app e gerencie sua sessão</p>
+
+              <div class="toggle-list">
+                <div class="toggle-row">
+                  <div class="toggle-text">
+                    <ion-icon name="moon-outline"></ion-icon>
+                    <div>
+                      <strong>Modo Escuro (Dark Mode)</strong>
+                      <span>Alternar paleta de cores escura</span>
+                    </div>
+                  </div>
+                  <ion-toggle
+                    [checked]="finance.profile().darkMode"
+                    (ionChange)="onToggleDarkMode($event.detail.checked)"
+                  ></ion-toggle>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-text">
+                    <ion-icon name="sparkles-outline"></ion-icon>
+                    <div>
+                      <strong>Classificação Inteligente (Ex: iFood &rarr; Comida)</strong>
+                      <span>Sugerir categoria automaticamente pelo nome do gasto</span>
+                    </div>
+                  </div>
+                  <ion-toggle
+                    [checked]="finance.profile().autoSuggestCategory"
+                    (ionChange)="onToggleAutoSuggest($event.detail.checked)"
+                  ></ion-toggle>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-text">
+                    <ion-icon name="notifications-outline"></ion-icon>
+                    <div>
+                      <strong>Alertas de Transações Seguintes</strong>
+                      <span>Avisar sobre contas agendadas do banco</span>
+                    </div>
+                  </div>
+                  <ion-toggle
+                    [checked]="finance.profile().notificationsEnabled"
+                    (ionChange)="onToggleNotifications($event.detail.checked)"
+                  ></ion-toggle>
+                </div>
+
+                <div class="test-notification-row">
+                  <ion-button
+                    fill="outline"
+                    shape="round"
+                    size="small"
+                    color="primary"
+                    (click)="onTestNotification()"
+                  >
+                    <ion-icon slot="start" name="notifications-outline"></ion-icon>
+                    Testar Notificação PWA (Web Notification)
+                  </ion-button>
+                </div>
+              </div>
+
+              <div class="settings-actions">
+                <ion-button
+                  expand="block"
+                  fill="outline"
+                  color="medium"
+                  shape="round"
+                  (click)="onResetDemo()"
+                >
+                  <ion-icon slot="start" name="refresh-outline"></ion-icon>
+                  Restaurar Dados de Demonstração
+                </ion-button>
+
+                <ion-button
+                  expand="block"
+                  fill="solid"
+                  color="danger"
+                  shape="round"
+                  class="logout-btn"
+                  (click)="onLogout()"
+                >
+                  <ion-icon slot="start" name="log-out-outline"></ion-icon>
+                  Sair da Conta (Ir para Tela de Login)
+                </ion-button>
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    }
+  </div>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMessage()"
+    [color]="toastColor()"
+    [duration]="2500"
+    position="top"
+    (didDismiss)="toastOpen.set(false)"
+  ></ion-toast>
+</ion-content>

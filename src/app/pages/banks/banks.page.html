@@ -1,0 +1,120 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab1" text="Voltar"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Conexão Bancária • Open Finance</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="bgd-container ion-padding">
+    <!-- Banner Ilustrado Open Finance -->
+    <div class="bgd-card open-finance-hero">
+      <ion-grid class="ion-no-padding">
+        <ion-row class="ion-align-items-center">
+          <ion-col size="12" sizeMd="6">
+            <span class="security-pill">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              Criptografia Ponta a Ponta • Banco Central
+            </span>
+            <h2>Conecte seu Banco ao BGD Cash</h2>
+            <p>
+              Importe automaticamente suas últimas transações e os lançamentos seguintes (como compras no <strong>iFood</strong>, <strong>Uber</strong> e assinaturas) para decidir a categoria de cada gasto com 1 toque.
+            </p>
+            <div class="hero-actions">
+              <ion-button shape="round" color="primary" (click)="onSyncNow()">
+                <ion-icon slot="start" name="sync-outline"></ion-icon>
+                Sincronizar Extrato Agora
+              </ion-button>
+
+              <ion-button shape="round" fill="outline" color="secondary" routerLink="/tabs/tab2">
+                Ver Transações Importadas
+                <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </ion-col>
+
+          <ion-col size="12" sizeMd="6" class="banner-img-col">
+            <img
+              src="assets/open-finance-banner.svg"
+              alt="Ilustração Conexão Open Finance BGD Cash"
+              class="of-illustration"
+            />
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <div class="bgd-section-header">
+      <div>
+        <h2>Instituições Financeiras Disponíveis</h2>
+        <p>Ative ou desative a sincronização automática de cada conta</p>
+      </div>
+      <ion-badge color="success">{{ finance.connectedBanks().length }} Conectados</ion-badge>
+    </div>
+
+    <ion-grid class="ion-no-padding">
+      <ion-row>
+        @for (bank of finance.banks(); track bank.id) {
+          <ion-col size="12" sizeMd="6" class="bank-col">
+            <div class="bgd-card bank-card" [class.connected]="bank.connected">
+              <div class="bank-top">
+                <div class="bank-logo-circle" [style.background]="bank.color">
+                  {{ bank.shortName }}
+                </div>
+
+                <div class="bank-meta">
+                  <div class="bank-title-row">
+                    <h3>{{ bank.name }}</h3>
+                    @if (bank.connected) {
+                      <ion-badge color="success">Conectado</ion-badge>
+                    } @else {
+                      <ion-badge color="medium">Desconectado</ion-badge>
+                    }
+                  </div>
+                  <span class="acc-num">{{ bank.accountNumber }}</span>
+                  @if (bank.lastSync) {
+                    <span class="sync-time">Última sincronização: {{ bank.lastSync }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="bank-bottom">
+                <div class="bank-balance">
+                  <span>Saldo em Conta</span>
+                  <strong>
+                    {{ bank.connected ? (bank.balance | currency:'BRL':'symbol':'1.2-2') : '—' }}
+                  </strong>
+                </div>
+
+                <ion-button
+                  shape="round"
+                  size="small"
+                  [fill]="bank.connected ? 'outline' : 'solid'"
+                  [color]="bank.connected ? 'danger' : 'primary'"
+                  (click)="onToggleBank(bank.id, bank.name, bank.connected)"
+                >
+                  <ion-icon
+                    slot="start"
+                    [name]="bank.connected ? 'close-circle-outline' : 'link-outline'"
+                  ></ion-icon>
+                  {{ bank.connected ? 'Desconectar' : 'Conectar Banco' }}
+                </ion-button>
+              </div>
+            </div>
+          </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMessage()"
+    [color]="toastColor()"
+    [duration]="2800"
+    position="top"
+    (didDismiss)="toastOpen.set(false)"
+  ></ion-toast>
+</ion-content>

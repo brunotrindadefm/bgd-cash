@@ -1,0 +1,18 @@
+.bgd-tab-bar {
+  --background: var(--bgd-card-bg);
+  border-top: 1px solid var(--bgd-border);
+  height: 64px;
+  padding-bottom: env(safe-area-inset-bottom);
+
+  ion-tab-button {
+    --color: var(--bgd-text-muted);
+    --color-selected: var(--ion-color-primary);
+    font-weight: 600;
+    font-size: 0.75rem;
+
+    ion-icon {
+      font-size: 1.45rem;
+      margin-bottom: 2px;
+    }
+  }
+}

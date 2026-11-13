@@ -1,0 +1,87 @@
+// BGD Cash — FinTech Moderno Design System Variables
+
+:root {
+  /** Primary: Emerald FinTech Green **/
+  --ion-color-primary: #059669;
+  --ion-color-primary-rgb: 5, 150, 105;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #04845c;
+  --ion-color-primary-tint: #1ea178;
+
+  /** Secondary: Deep Slate / Navy **/
+  --ion-color-secondary: #0f172a;
+  --ion-color-secondary-rgb: 15, 23, 42;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #0d1425;
+  --ion-color-secondary-tint: #273244;
+
+  /** Tertiary: Indigo Open Finance **/
+  --ion-color-tertiary: #4f46e5;
+  --ion-color-tertiary-rgb: 79, 70, 229;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #463eca;
+  --ion-color-tertiary-tint: #6159e8;
+
+  /** Success: Income Emerald **/
+  --ion-color-success: #10b981;
+  --ion-color-success-rgb: 16, 185, 129;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #0ea372;
+  --ion-color-success-tint: #28ba8e;
+
+  /** Warning: Pending Classification Amber **/
+  --ion-color-warning: #f59e0b;
+  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #d88b0a;
+  --ion-color-warning-tint: #f6a823;
+
+  /** Danger: Expense Coral Red **/
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #d23c3c;
+  --ion-color-danger-tint: #f15757;
+
+  /** Light & Medium **/
+  --ion-color-medium: #64748b;
+  --ion-color-medium-rgb: 100, 116, 139;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #58667a;
+  --ion-color-medium-tint: #748497;
+
+  --ion-color-light: #f1f5f9;
+  --ion-color-light-rgb: 241, 245, 249;
+  --ion-color-light-contrast: #0f172a;
+  --ion-color-light-contrast-rgb: 15, 23, 42;
+  --ion-color-light-shade: #d4d8db;
+  --ion-color-light-tint: #f2f6fa;
+
+  /** App Surface Tokens **/
+  --bgd-bg: #f8fafc;
+  --bgd-card-bg: #ffffff;
+  --bgd-border: #e2e8f0;
+  --bgd-text-main: #0f172a;
+  --bgd-text-muted: #64748b;
+  --bgd-hero-gradient: linear-gradient(135deg, #064e3b 0%, #059669 55%, #10b981 100%);
+  --bgd-radius-lg: 18px;
+  --bgd-radius-md: 12px;
+  --bgd-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+.ion-palette-dark {
+  --bgd-bg: #0b1120;
+  --bgd-card-bg: #1e293b;
+  --bgd-border: #334155;
+  --bgd-text-main: #f8fafc;
+  --bgd-text-muted: #94a3b8;
+  --bgd-hero-gradient: linear-gradient(135deg, #022c22 0%, #065f46 60%, #059669 100%);
+  --bgd-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}

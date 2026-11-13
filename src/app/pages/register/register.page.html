@@ -1,0 +1,80 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text="Voltar"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Criar Conta • BGD Cash</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="bgd-container ion-padding">
+    <ion-grid>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="12" sizeMd="8" sizeLg="5">
+          <div class="bgd-card reg-card">
+            <div class="reg-header">
+              <img src="assets/bgd-logo.svg" alt="BGD Cash" class="reg-logo" />
+              <h2>Crie sua conta grátis</h2>
+              <p>Comece a classificar seus gastos do banco e acompanhar seus gráficos agora mesmo.</p>
+            </div>
+
+            <ion-item lines="none" class="bgd-input-item">
+              <ion-icon slot="start" name="person-outline" color="medium"></ion-icon>
+              <ion-input
+                label="Nome Completo"
+                labelPlacement="stacked"
+                placeholder="Ex: Luiz Maia"
+                [ngModel]="name()"
+                (ngModelChange)="name.set($event)"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="bgd-input-item">
+              <ion-icon slot="start" name="mail-outline" color="medium"></ion-icon>
+              <ion-input
+                label="E-mail"
+                labelPlacement="stacked"
+                type="email"
+                placeholder="voce@email.com.br"
+                [ngModel]="email()"
+                (ngModelChange)="email.set($event)"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="bgd-input-item">
+              <ion-icon slot="start" name="lock-closed-outline" color="medium"></ion-icon>
+              <ion-input
+                label="Crie uma Senha"
+                labelPlacement="stacked"
+                type="password"
+                placeholder="Mínimo 6 caracteres"
+                [ngModel]="password()"
+                (ngModelChange)="password.set($event)"
+              ></ion-input>
+            </ion-item>
+
+            <ion-button expand="block" shape="round" size="large" color="primary" (click)="onRegister()">
+              <ion-icon slot="start" name="person-add-outline"></ion-icon>
+              Concluir Cadastro
+            </ion-button>
+
+            <div class="login-link-row">
+              <span>Já possui cadastro?</span>
+              <a routerLink="/login">Voltar para Login</a>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMsg()"
+    color="warning"
+    [duration]="2400"
+    position="top"
+    (didDismiss)="toastOpen.set(false)"
+  ></ion-toast>
+</ion-content>

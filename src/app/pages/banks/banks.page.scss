@@ -1,0 +1,144 @@
+.open-finance-hero {
+  padding: 22px;
+  margin-bottom: 20px;
+
+  .security-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.14);
+    color: var(--ion-color-primary);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--bgd-text-main);
+  }
+
+  p {
+    margin: 0 0 16px 0;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--bgd-text-muted);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .banner-img-col {
+    display: flex;
+    justify-content: center;
+    margin-top: 14px;
+
+    @media (min-width: 768px) {
+      margin-top: 0;
+    }
+
+    .of-illustration {
+      width: 100%;
+      max-width: 360px;
+      border-radius: 16px;
+    }
+  }
+}
+
+.bank-col {
+  padding: 6px;
+}
+
+.bank-card {
+  padding: 18px;
+  height: calc(100% - 12px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &.connected {
+    border-color: rgba(16, 185, 129, 0.45);
+  }
+
+  .bank-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    .bank-logo-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .bank-meta {
+      flex: 1;
+
+      .bank-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+
+        h3 {
+          margin: 0;
+          font-size: 1.02rem;
+          font-weight: 800;
+          color: var(--bgd-text-main);
+        }
+      }
+
+      .acc-num {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--bgd-text-muted);
+        margin-top: 3px;
+      }
+
+      .sync-time {
+        display: block;
+        font-size: 0.72rem;
+        color: var(--ion-color-primary);
+        margin-top: 2px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .bank-bottom {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bgd-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .bank-balance {
+      span {
+        display: block;
+        font-size: 0.74rem;
+        color: var(--bgd-text-muted);
+      }
+
+      strong {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--bgd-text-main);
+      }
+    }
+  }
+}

@@ -1,0 +1,518 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Receitas, Gastos &amp; Banco</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onSyncBanks()" fill="outline" color="primary" shape="round" size="small">
+        <ion-icon slot="start" name="sync-outline"></ion-icon>
+        Sincronizar Banco
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar class="segment-toolbar">
+    <ion-segment
+      [value]="activeSegment()"
+      (ionChange)="onSegmentChange($event.detail.value)"
+      mode="ios"
+    >
+      <ion-segment-button value="past">
+        <ion-label>Últimas ({{ finance.pastTransactions().length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="upcoming">
+        <ion-label>Seguintes ({{ finance.upcomingTransactions().length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="add">
+        <ion-label>+ Lançar</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="bgd-container ion-padding">
+    <!-- Barra de Conexão Bancária Open Finance -->
+    <div class="bank-connection-strip">
+      <div class="strip-left">
+        <div class="bank-avatars">
+          @for (bank of finance.connectedBanks(); track bank.id) {
+            <span class="bank-avatar" [style.background]="bank.color" [title]="bank.name">
+              {{ bank.shortName }}
+            </span>
+          }
+        </div>
+        <div>
+          <strong>Conexão Open Finance Ativa</strong>
+          <p>
+            Veja suas últimas transações e as seguintes, e classifique cada gasto (ex: iFood &rarr; Comida).
+          </p>
+        </div>
+      </div>
+
+      <div class="strip-actions">
+        <ion-button routerLink="/bancos" fill="solid" color="secondary" size="small" shape="round">
+          <ion-icon slot="start" name="business-outline"></ion-icon>
+          Gerenciar Bancos
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- ABA 1: ÚLTIMAS TRANSAÇÕES (REALIZADAS) -->
+    @if (activeSegment() === 'past') {
+      <div class="filter-chips-bar">
+        <ion-chip
+          [color]="filterMode() === 'all' ? 'primary' : 'medium'"
+          [outline]="filterMode() !== 'all'"
+          (click)="filterMode.set('all')"
+        >
+          <ion-label>Todas ({{ finance.pastTransactions().length }})</ion-label>
+        </ion-chip>
+
+        <ion-chip
+          [color]="filterMode() === 'review' ? 'warning' : 'medium'"
+          [outline]="filterMode() !== 'review'"
+          (click)="filterMode.set('review')"
+        >
+          <ion-icon name="sparkles-outline"></ion-icon>
+          <ion-label>Pendentes de Classificação</ion-label>
+        </ion-chip>
+
+        <ion-chip
+          [color]="filterMode() === 'bank' ? 'tertiary' : 'medium'"
+          [outline]="filterMode() !== 'bank'"
+          (click)="filterMode.set('bank')"
+        >
+          <ion-icon name="card-outline"></ion-icon>
+          <ion-label>Vindas do Banco</ion-label>
+        </ion-chip>
+      </div>
+
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          @for (tx of filteredPastTransactions(); track tx.id) {
+            @let cat = finance.getCategoryById(tx.categoryId);
+            @let bank = finance.getBankById(tx.bankId);
+            <ion-col size="12" sizeLg="6" class="tx-col">
+              <div class="bgd-card tx-card" [class.needs-review]="tx.needsReview">
+                @if (tx.needsReview) {
+                  <div class="smart-suggestion-bar">
+                    <div class="suggestion-text">
+                      <ion-icon name="sparkles-outline"></ion-icon>
+                      <span>
+                        Sugestão do banco: <strong>{{ cat.name }}</strong>
+                      </span>
+                    </div>
+                    <ion-button
+                      size="small"
+                      color="success"
+                      shape="round"
+                      (click)="onConfirmSuggestion(tx.id)"
+                    >
+                      <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+                      Confirmar
+                    </ion-button>
+                  </div>
+                }
+
+                <div class="tx-main-row">
+                  <div
+                    class="bgd-category-badge"
+                    [style.background]="cat.color + '20'"
+                    [style.color]="cat.color"
+                  >
+                    <ion-icon [name]="cat.icon"></ion-icon>
+                  </div>
+
+                  <div class="tx-details">
+                    <div class="tx-header-top">
+                      <h4>{{ tx.title }}</h4>
+                      <!-- Botão de Excluir no canto superior direito -->
+                      <button
+                        type="button"
+                        class="tx-delete-top-btn"
+                        (click)="openDeleteModal(tx)"
+                        title="Excluir transação"
+                      >
+                        <ion-icon name="trash-outline"></ion-icon>
+                      </button>
+                    </div>
+
+                    <div class="tx-sub-row">
+                      <div class="tx-meta-tags">
+                        <span>{{ tx.date | date:'dd/MM/yyyy' }}</span>
+                        @if (bank) {
+                          <span
+                            class="bgd-bank-pill"
+                            [style.background]="bank.color + '20'"
+                            [style.color]="bank.color"
+                          >
+                            <ion-icon name="card-outline"></ion-icon>
+                            {{ bank.name }}
+                          </span>
+                        } @else {
+                          <span class="bgd-bank-pill manual-pill">Manual</span>
+                        }
+                      </div>
+
+                      <span
+                        class="tx-amount"
+                        [class.bgd-amount-income]="tx.type === 'income'"
+                        [class.bgd-amount-expense]="tx.type === 'expense'"
+                      >
+                        {{ tx.type === 'income' ? '+' : '-' }}
+                        {{ tx.amount | currency:'BRL':'symbol':'1.2-2' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Select limpo ocupando a linha inferior sem texto extra -->
+                <div class="tx-classifier-row">
+                  <div class="select-pill-wrapper">
+                    <ion-icon name="pricetag-outline" [style.color]="cat.color"></ion-icon>
+                    <ion-select
+                      aria-label="Categoria da transação"
+                      interface="popover"
+                      [value]="tx.categoryId"
+                      (ionChange)="onChangeTransactionCategory(tx.id, $event.detail.value)"
+                      class="category-select-clean"
+                    >
+                      @for (c of finance.categories(); track c.id) {
+                        <ion-select-option [value]="c.id">
+                          {{ c.name }} ({{ c.type === 'income' ? 'Receita' : 'Despesa' }})
+                        </ion-select-option>
+                      }
+                    </ion-select>
+                  </div>
+                </div>
+              </div>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    }
+
+    <!-- ABA 2: TRANSAÇÕES SEGUINTES (FUTURAS / AGENDADAS) -->
+    @if (activeSegment() === 'upcoming') {
+      <div class="upcoming-summary-card">
+        <div>
+          <span>Total de Despesas Seguintes</span>
+          <strong>{{ finance.upcomingExpenseTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span>Total de Receitas Seguintes</span>
+          <strong class="inc">{{ finance.upcomingIncomeTotal() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          @for (tx of finance.upcomingTransactions(); track tx.id) {
+            @let cat = finance.getCategoryById(tx.categoryId);
+            @let bank = finance.getBankById(tx.bankId);
+            <ion-col size="12" sizeLg="6" class="tx-col">
+              <div class="bgd-card tx-card upcoming-border">
+                <div class="tx-main-row">
+                  <div
+                    class="bgd-category-badge"
+                    [style.background]="cat.color + '20'"
+                    [style.color]="cat.color"
+                  >
+                    <ion-icon [name]="cat.icon"></ion-icon>
+                  </div>
+
+                  <div class="tx-details">
+                    <div class="tx-header-top">
+                      <h4>{{ tx.title }}</h4>
+                      <!-- Botão de Excluir no canto superior direito -->
+                      <button
+                        type="button"
+                        class="tx-delete-top-btn"
+                        (click)="openDeleteModal(tx)"
+                        title="Excluir transação"
+                      >
+                        <ion-icon name="trash-outline"></ion-icon>
+                      </button>
+                    </div>
+
+                    <div class="tx-sub-row">
+                      <div class="tx-meta-tags">
+                        <ion-badge color="tertiary">Previsto {{ tx.date | date:'dd/MM' }}</ion-badge>
+                        @if (bank) {
+                          <span
+                            class="bgd-bank-pill"
+                            [style.background]="bank.color + '20'"
+                            [style.color]="bank.color"
+                          >
+                            {{ bank.name }}
+                          </span>
+                        }
+                      </div>
+
+                      <span
+                        class="tx-amount"
+                        [class.bgd-amount-income]="tx.type === 'income'"
+                        [class.bgd-amount-expense]="tx.type === 'expense'"
+                      >
+                        {{ tx.type === 'income' ? '+' : '-' }}
+                        {{ tx.amount | currency:'BRL':'symbol':'1.2-2' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tx-classifier-row">
+                  <div class="select-pill-wrapper">
+                    <ion-icon name="pricetag-outline" [style.color]="cat.color"></ion-icon>
+                    <ion-select
+                      aria-label="Categoria da transação"
+                      interface="popover"
+                      [value]="tx.categoryId"
+                      (ionChange)="onChangeTransactionCategory(tx.id, $event.detail.value)"
+                      class="category-select-clean"
+                    >
+                      @for (c of finance.categories(); track c.id) {
+                        <ion-select-option [value]="c.id">{{ c.name }}</ion-select-option>
+                      }
+                    </ion-select>
+                  </div>
+
+                  <ion-button
+                    size="small"
+                    fill="outline"
+                    color="success"
+                    shape="round"
+                    (click)="onRealizeTransaction(tx.id)"
+                  >
+                    <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
+                    Efetivar
+                  </ion-button>
+                </div>
+              </div>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    }
+
+    <!-- ABA 3: ADICIONAR NOVA RECEITA OU DESPESA COM SELECT DE CATEGORIA -->
+    @if (activeSegment() === 'add') {
+      <ion-grid class="ion-no-padding">
+        <ion-row class="ion-justify-content-center">
+          <ion-col size="12" sizeMd="10" sizeLg="8">
+            <div class="bgd-card add-form-card">
+              <div class="form-header">
+                <h3>Novo Lançamento Financeiro</h3>
+                <p>
+                  Cadastre uma despesa ou receita escolhendo a categoria no seletor (você pode criar novas categorias na aba Perfil).
+                </p>
+              </div>
+
+              <!-- Seletor Receita vs Despesa -->
+              <div class="type-toggle-row">
+                <button
+                  type="button"
+                  class="type-btn expense"
+                  [class.active]="formType() === 'expense'"
+                  (click)="onFormTypeChange('expense')"
+                >
+                  <ion-icon name="arrow-down-circle-outline"></ion-icon>
+                  Despesa / Gasto
+                </button>
+
+                <button
+                  type="button"
+                  class="type-btn income"
+                  [class.active]="formType() === 'income'"
+                  (click)="onFormTypeChange('income')"
+                >
+                  <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                  Receita / Ganho
+                </button>
+              </div>
+
+              <div class="form-fields">
+                <ion-item lines="none" class="bgd-input-item">
+                  <ion-input
+                    label="Descrição (ex: Compra no iFood, Salário)"
+                    labelPlacement="stacked"
+                    placeholder="Digite o nome do gasto ou receita..."
+                    [ngModel]="formTitle()"
+                    (ngModelChange)="onTitleInput($event)"
+                  ></ion-input>
+                </ion-item>
+
+                <ion-row>
+                  <ion-col size="12" sizeSm="6">
+                    <ion-item lines="none" class="bgd-input-item">
+                      <ion-input
+                        label="Valor (R$)"
+                        labelPlacement="stacked"
+                        type="number"
+                        placeholder="0,00"
+                        [ngModel]="formAmount()"
+                        (ngModelChange)="formAmount.set($event)"
+                      ></ion-input>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col size="12" sizeSm="6">
+                    <ion-item lines="none" class="bgd-input-item highlight-select">
+                      <ion-select
+                        label="Categoria (Select)"
+                        labelPlacement="stacked"
+                        interface="popover"
+                        [value]="formCategoryId()"
+                        (ionChange)="formCategoryId.set($event.detail.value)"
+                      >
+                        @for (cat of availableCategoriesForForm(); track cat.id) {
+                          <ion-select-option [value]="cat.id">
+                            {{ cat.name }}
+                          </ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="12" sizeSm="6">
+                    <ion-item lines="none" class="bgd-input-item">
+                      <ion-select
+                        label="Momento da Transação"
+                        labelPlacement="stacked"
+                        interface="popover"
+                        [value]="formTiming()"
+                        (ionChange)="formTiming.set($event.detail.value)"
+                      >
+                        <ion-select-option value="past">Já Realizada (Últimas)</ion-select-option>
+                        <ion-select-option value="upcoming">Seguinte / Futura (Agendada)</ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+
+                  <ion-col size="12" sizeSm="6">
+                    <ion-item lines="none" class="bgd-input-item">
+                      <ion-input
+                        label="Data"
+                        labelPlacement="stacked"
+                        type="date"
+                        [ngModel]="formDate()"
+                        (ngModelChange)="formDate.set($event)"
+                      ></ion-input>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+
+                <ion-item lines="none" class="bgd-input-item">
+                  <ion-select
+                    label="Conta / Conexão Bancária"
+                    labelPlacement="stacked"
+                    interface="popover"
+                    [value]="formBankId()"
+                    (ionChange)="formBankId.set($event.detail.value)"
+                  >
+                    <ion-select-option value="manual">Carteira Manual (Sem banco)</ion-select-option>
+                    @for (b of finance.connectedBanks(); track b.id) {
+                      <ion-select-option [value]="b.id">{{ b.name }} (Conectado)</ion-select-option>
+                    }
+                  </ion-select>
+                </ion-item>
+
+                <ion-item lines="none" class="bgd-input-item">
+                  <ion-textarea
+                    label="Observações (opcional)"
+                    labelPlacement="stacked"
+                    placeholder="Detalhes adicionais sobre o lançamento..."
+                    [rows]="2"
+                    [ngModel]="formNotes()"
+                    (ngModelChange)="formNotes.set($event)"
+                  ></ion-textarea>
+                </ion-item>
+
+                <div class="shortcut-categories-tip">
+                  <ion-icon name="information-circle-outline"></ion-icon>
+                  <span>
+                    Quer criar ou remover uma categoria personalizada?
+                    <a routerLink="/tabs/tab3">Gerenciar Categorias no Perfil &rarr;</a>
+                  </span>
+                </div>
+
+                <ion-button
+                  expand="block"
+                  shape="round"
+                  size="large"
+                  [color]="formType() === 'income' ? 'success' : 'primary'"
+                  (click)="onSubmitNewTransaction()"
+                >
+                  <ion-icon slot="start" name="save-outline"></ion-icon>
+                  Salvar {{ formType() === 'income' ? 'Receita' : 'Despesa' }}
+                </ion-button>
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    }
+  </div>
+
+  <!-- Modal de Confirmação ao Excluir Transação -->
+  <ion-modal
+    [isOpen]="!!pendingDeleteTx()"
+    (didDismiss)="closeDeleteModal()"
+    class="delete-confirm-modal"
+  >
+    <ng-template>
+      <div class="modal-confirm-box">
+        <div class="modal-danger-icon">
+          <ion-icon name="trash-outline"></ion-icon>
+        </div>
+        <h3>Excluir Transação?</h3>
+        <p>Tem certeza que deseja excluir este lançamento? Esta ação não poderá ser desfeita.</p>
+
+        @if (pendingDeleteTx(); as txToDel) {
+          <div class="modal-tx-preview">
+            <strong>{{ txToDel.title }}</strong>
+            <span
+              [class.bgd-amount-income]="txToDel.type === 'income'"
+              [class.bgd-amount-expense]="txToDel.type === 'expense'"
+            >
+              {{ txToDel.type === 'income' ? '+' : '-' }}
+              {{ txToDel.amount | currency:'BRL':'symbol':'1.2-2' }}
+            </span>
+          </div>
+        }
+
+        <div class="modal-confirm-actions">
+          <ion-button
+            expand="block"
+            fill="outline"
+            color="medium"
+            shape="round"
+            (click)="closeDeleteModal()"
+          >
+            Cancelar
+          </ion-button>
+          <ion-button
+            expand="block"
+            fill="solid"
+            color="danger"
+            shape="round"
+            (click)="confirmDeleteTransaction()"
+          >
+            <ion-icon slot="start" name="trash-outline"></ion-icon>
+            Sim, Excluir
+          </ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMessage()"
+    [color]="toastColor()"
+    [duration]="2600"
+    position="top"
+    (didDismiss)="toastOpen.set(false)"
+  ></ion-toast>
+</ion-content>

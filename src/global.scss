@@ -1,0 +1,89 @@
+/*
+ * BGD Cash Global Stylesheet
+ */
+
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+@import "@ionic/angular/css/palettes/dark.class.css";
+
+ion-content {
+  --background: var(--bgd-bg);
+}
+
+.bgd-container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-bottom: 28px;
+}
+
+.bgd-card {
+  background: var(--bgd-card-bg);
+  border: 1px solid var(--bgd-border);
+  border-radius: var(--bgd-radius-lg);
+  box-shadow: var(--bgd-shadow);
+  margin: 0 0 16px 0;
+  overflow: hidden;
+}
+
+.bgd-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 4px 12px 4px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--bgd-text-main);
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 2px 0 0 0;
+    font-size: 0.82rem;
+    color: var(--bgd-text-muted);
+  }
+}
+
+.bgd-category-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.bgd-bank-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.bgd-amount-income {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.bgd-amount-expense {
+  color: #ef4444;
+  font-weight: 700;
+}

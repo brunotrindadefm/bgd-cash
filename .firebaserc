@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "bgd-cash",
+    "bgd": "bgd-cash"
+  },
+  "targets": {},
+  "etags": {}
+}

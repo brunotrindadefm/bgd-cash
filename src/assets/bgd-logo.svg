@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="bgdGrad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="50%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="goldAccent" x1="20" y1="90" x2="100" y2="25" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#a7f3d0"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="108" height="108" rx="28" fill="url(#bgdGrad)"/>
+  <rect x="24" y="66" width="14" height="28" rx="6" fill="#ffffff" fill-opacity="0.75"/>
+  <rect x="46" y="50" width="14" height="44" rx="6" fill="#ffffff" fill-opacity="0.9"/>
+  <rect x="68" y="34" width="14" height="60" rx="6" fill="#ffffff"/>
+  <path d="M26 52L51 35L68 43L94 22" stroke="url(#goldAccent)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="94" cy="22" r="7" fill="#a7f3d0"/>
+</svg>

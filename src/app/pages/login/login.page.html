@@ -1,0 +1,106 @@
+<ion-content [fullscreen]="true">
+  <div class="auth-wrapper ion-padding">
+    <ion-grid class="auth-grid">
+      <ion-row class="ion-align-items-center ion-justify-content-center">
+        <!-- Painel de Apresentação (Responsivo Tablet/Desktop e Mobile) -->
+        <ion-col size="12" sizeMd="6" sizeLg="5">
+          <div class="auth-brand-panel">
+            <div class="logo-row">
+              <img src="assets/bgd-logo.svg" alt="Logo BGD Cash" class="auth-logo" />
+              <div>
+                <span class="app-tag">OPEN FINANCE &amp; GESTÃO</span>
+                <h1>BGD Cash</h1>
+              </div>
+            </div>
+
+            <h2>Conecte seu banco e domine para onde vai seu dinheiro.</h2>
+            <p>
+              Visualize suas últimas transações e as seguintes, classifique gastos como <strong>iFood &rarr; Comida</strong> e acompanhe gráficos inteligentes em tempo real.
+            </p>
+
+            <div class="feature-bullets">
+              <div class="bullet-item">
+                <ion-icon name="checkmark-circle"></ion-icon>
+                <span>Conexão Open Finance com Nubank, Itaú, Inter e mais</span>
+              </div>
+              <div class="bullet-item">
+                <ion-icon name="checkmark-circle"></ion-icon>
+                <span>Decida a categoria de compras realizadas e seguintes</span>
+              </div>
+              <div class="bullet-item">
+                <ion-icon name="checkmark-circle"></ion-icon>
+                <span>Gráficos de pizza, evolução em linha e ranking de gastos</span>
+              </div>
+            </div>
+          </div>
+        </ion-col>
+
+        <!-- Card de Login -->
+        <ion-col size="12" sizeMd="6" sizeLg="5">
+          <div class="bgd-card auth-card">
+            <h3>Bem-vindo de volta</h3>
+            <p class="auth-sub">Acesse sua conta BGD Cash para continuar</p>
+
+            <ion-item lines="none" class="bgd-input-item">
+              <ion-icon slot="start" name="mail-outline" color="medium"></ion-icon>
+              <ion-input
+                label="E-mail"
+                labelPlacement="stacked"
+                type="email"
+                placeholder="seu@email.com.br"
+                [ngModel]="email()"
+                (ngModelChange)="email.set($event)"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item lines="none" class="bgd-input-item">
+              <ion-icon slot="start" name="lock-closed-outline" color="medium"></ion-icon>
+              <ion-input
+                label="Senha"
+                labelPlacement="stacked"
+                [type]="showPassword() ? 'text' : 'password'"
+                placeholder="••••••••"
+                [ngModel]="password()"
+                (ngModelChange)="password.set($event)"
+              ></ion-input>
+              <ion-button
+                fill="clear"
+                slot="end"
+                color="medium"
+                (click)="showPassword.set(!showPassword())"
+              >
+                <ion-icon
+                  slot="icon-only"
+                  [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"
+                ></ion-icon>
+              </ion-button>
+            </ion-item>
+
+            <div class="forgot-row">
+              <a routerLink="/recuperar-senha">Esqueci minha senha</a>
+            </div>
+
+            <ion-button expand="block" shape="round" size="large" color="primary" (click)="onLogin()">
+              <ion-icon slot="start" name="log-in-outline"></ion-icon>
+              Entrar na Conta
+            </ion-button>
+
+            <div class="register-footer">
+              <span>Ainda não tem uma conta?</span>
+              <a routerLink="/cadastro">Criar conta grátis</a>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <ion-toast
+    [isOpen]="toastOpen()"
+    [message]="toastMsg()"
+    color="warning"
+    [duration]="2400"
+    position="top"
+    (didDismiss)="toastOpen.set(false)"
+  ></ion-toast>
+</ion-content>
